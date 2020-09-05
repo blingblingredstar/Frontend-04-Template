@@ -4,9 +4,57 @@ function sleep(delay = 100) {
   });
 }
 
+class Sorted {
+  constructor(data = [], compare = (a, b) => a - b) {
+    this.data = [data];
+    this.compare = compare;
+  }
+
+  /**
+   * 取出数组中最小的一项
+   */
+  take() {
+    if (!this.data.length) return;
+
+    let min = this.data[0];
+    let minIndex = 0;
+
+    this.data.forEach((item, index) => {
+      if (this.compare(item, min) < 0) {
+        min = item;
+        minIndex = index;
+      }
+    });
+
+    /**将数组最小项赋值为最后一项，并推出最后一项 */
+    this.data[minIndex] = this.data[this.data.length - 1];
+    this.data.pop();
+
+    return min;
+  }
+
+  give(item) {
+    this.data.push(item);
+  }
+
+  get length() {
+    return this.data.length;
+  }
+}
+
+/**
+ * 比较用，为了节约运算，没有开方
+ */
+function distance([x, y], [endX, endY]) {
+  return (x - endX) ** 2 + (y - endY) ** 2;
+}
+
 async function path(map, start, end) {
   const mapCopy = Object.create(map);
-  const queue = [start];
+  const queue = new Sorted(
+    start,
+    (a, b) => distance(a, end) - distance(b, end)
+  );
 
   async function insert(x, y, previousPosition) {
     const isOutRange = x < 0 || x >= 100 || y < 0 || y >= 100;
@@ -19,11 +67,11 @@ async function path(map, start, end) {
     container.children[index].classList.add("search");
 
     mapCopy[index] = previousPosition;
-    queue.push([x, y]);
+    queue.give([x, y]);
   }
 
   while (queue.length) {
-    let [x, y] = queue.shift();
+    let [x, y] = queue.take();
     const [endX, endY] = end;
     if (x === endX && y === endY) {
       const path = [];
