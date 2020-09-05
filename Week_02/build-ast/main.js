@@ -41,18 +41,75 @@ function* tokenize(source = "") {
 
 const source = [];
 
-for (const token of tokenize("10 * 25 / 2")) {
+for (const token of tokenize("1 + 2 * 5 + 3")) {
   if (token.type !== "Whitespace" && token.type !== "LineTerminator")
     source.push(token);
 }
 
-function Expression(tokens) {}
+const MULTIPLICATIVE_EXPRESSION = "MultiplicativeExpression";
+const ADDITIVE_EXPRESSION = "AdditiveExpression";
+const EOF = "EOF";
 
-function AdditiveExpression() {}
+function Expression(tokens = [{ type, value }]) {
+  if (tokens[0].type === ADDITIVE_EXPRESSION && tokens[1]?.type === EOF) {
+    const node = {
+      type: "Expression",
+      children: [source.shift(), source.shift()],
+    };
+    source.unshift(node);
+    return node;
+  }
+  AdditiveExpression(tokens);
+  return Expression(tokens);
+}
+
+function AdditiveExpression(source = [{ type, value }]) {
+  if (source[0].type === MULTIPLICATIVE_EXPRESSION) {
+    const node = {
+      type: ADDITIVE_EXPRESSION,
+      children: [source[0]],
+    };
+    source[0] = node;
+    return AdditiveExpression(source);
+  }
+
+  if (source[0].type === ADDITIVE_EXPRESSION && source[1]?.type === "+") {
+    const node = {
+      type: ADDITIVE_EXPRESSION,
+      operator: "+",
+      children: [],
+    };
+    node.children.push(source.shift());
+    node.children.push(source.shift());
+    MultiplicativeExpression(source);
+    node.children.push(source.shift());
+    source.unshift(node);
+    return AdditiveExpression(source);
+  }
+
+  if (source[0].type === ADDITIVE_EXPRESSION && source[1]?.type === "-") {
+    const node = {
+      type: ADDITIVE_EXPRESSION,
+      operator: "-",
+      children: [],
+    };
+    node.children.push(source.shift());
+    node.children.push(source.shift());
+    MultiplicativeExpression(source);
+    node.children.push(source.shift());
+    source.unshift(node);
+    return AdditiveExpression(source);
+  }
+
+  if (source[0].type === ADDITIVE_EXPRESSION) {
+    return source[0];
+  }
+
+  MultiplicativeExpression(source);
+  return AdditiveExpression(source);
+}
 
 function MultiplicativeExpression(source = [{ type, value }]) {
-  const MULTIPLICATIVE_EXPRESSION = "MultiplicativeExpression";
-
   if (source[0].type === "Number") {
     const node = {
       type: MULTIPLICATIVE_EXPRESSION,
@@ -95,4 +152,4 @@ function MultiplicativeExpression(source = [{ type, value }]) {
   return MultiplicativeExpression(source);
 }
 
-console.log(MultiplicativeExpression(source));
+console.log(Expression(source));
