@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>map</title>
+    <style>
+      .cell {
+        line-height: 7px;
+        width: 6px;
+        height: 6px;
+        background-color: gray;
+        border-bottom: solid 1px white;
+        border-right: solid 1px white;
+      }
+      .fill {
+        background-color: black;
+      }
+      .search {
+        background-color: aquamarine;
+      }
+      .path {
+        background-color: purple;
+      }
+      #container {
+        width: 700px;
+        display: flex;
+        flex-flow: row wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <button id="save">save</button>
+    <script src="main.js"></script>
+    <script src="path.js"></script>
+  </body>
+</html>
