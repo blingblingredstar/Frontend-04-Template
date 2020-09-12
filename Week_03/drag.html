@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>正常拖拽</title>
+  </head>
+  <body>
+    <div id="container">
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum dicta
+      incidunt atque doloremque illum tempora facilis facere maxime sapiente!
+      Fugiat molestiae vero eius unde ea laboriosam id sunt nam cupiditate velit
+      voluptatibus rem omnis quas saepe doloribus sequi aperiam voluptatem illo,
+      et autem? Ad magnam voluptatum cum ipsum voluptatem eos, corrupti vero
+      nostrum debitis sapiente reiciendis neque quasi illo soluta? Debitis alias
+      necessitatibus earum est itaque recusandae rerum ut obcaecati atque
+      doloribus, eos autem saepe veritatis esse nobis officia reiciendis
+      similique excepturi. Numquam cupiditate excepturi nostrum quae eos
+      provident dolores repudiandae vitae, nemo minus quibusdam ex voluptate
+      veritatis. Doloribus possimus optio sequi laboriosam architecto. Officiis
+      corrupti optio impedit quos! Similique exercitationem incidunt numquam
+      alias. Quisquam sed numquam eveniet illum? Error porro vitae doloremque
+      eius deleniti, harum explicabo molestias qui iure quibusdam culpa at dicta
+      nulla sit voluptatum ipsa exercitationem voluptates iste optio officia
+      maxime ullam, dignissimos aperiam odio. Necessitatibus enim modi
+      consequatur molestias quisquam nulla tenetur atque quae eius dignissimos
+      ea ullam ad qui consequuntur eligendi culpa, omnis aspernatur assumenda
+      vero ut! Maxime, doloremque perferendis exercitationem enim nulla magni
+      dolore sunt tenetur excepturi expedita hic in. Ducimus tempora impedit
+      voluptate corrupti esse non nam odit reiciendis! Natus iure non odio earum
+      autem, minus nemo, dolorem eius deserunt fugiat ratione tenetur labore
+      voluptatum velit harum ab dolorum. Ducimus blanditiis temporibus assumenda
+      labore atque illo, sunt nulla reprehenderit cupiditate necessitatibus
+      laborum provident cum itaque accusamus, vel at quis voluptatibus dolor
+      aliquid tempora dolorum unde! Provident quod, quas sint pariatur
+      praesentium laboriosam delectus nam cum quaerat eum aliquam blanditiis
+      omnis dolorum nesciunt harum sapiente. Laborum sit, molestias eos fuga,
+      ipsam, suscipit repellat consectetur voluptate quis nesciunt delectus
+      facere officiis odit dolorum eaque tenetur odio obcaecati at magnam nam
+      cumque maxime eum fugiat! Aut officia obcaecati ea omnis, reiciendis magni
+      consequatur vel distinctio voluptatum atque minus neque rem modi, fugit
+      iure, animi ipsam ut quo dolore itaque. Sed quidem enim deleniti eligendi
+      cupiditate voluptates voluptatibus nemo. Vel iusto accusantium laudantium
+      voluptas ipsa cum tempore, magni minima, itaque aliquid inventore
+      explicabo aperiam eaque adipisci libero, ducimus ad porro at maiores sequi
+      reprehenderit ratione eius maxime tempora! Amet iste, perferendis a
+      numquam natus quisquam iusto impedit repellat eaque asperiores ab deserunt
+      fuga? Laboriosam facilis id similique saepe architecto quasi quod ratione
+      quia nostrum delectus excepturi facere commodi, maiores hic reiciendis
+      illum libero veniam dolor, laborum nam, numquam debitis! Officia cum
+      voluptatum saepe. Cumque culpa quidem magni.
+    </div>
+    <div
+      id="draggable"
+      style="
+        width: 100px;
+        height: 100px;
+        background-color: pink;
+        display: inline-block;
+      "
+    ></div>
+  </body>
+  <script>
+    const draggableEl = document.getElementById("draggable");
+
+    const basePosition = { x: 0, y: 0 };
+
+    draggableEl.addEventListener("mousedown", (event) => {
+      const mouseStart = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const up = (e) => {
+        basePosition.x = basePosition.x + e.clientX - mouseStart.x;
+        basePosition.y = basePosition.y + e.clientY - mouseStart.y;
+        document.removeEventListener("mouseup", up);
+        document.removeEventListener("mousemove", move);
+      };
+
+      const move = (e) => {
+        const range = getNearest(e.clientX, e.clientY);
+
+        range.insertNode(draggableEl);
+      };
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
+    });
+
+    const containerEl = document.getElementById("container");
+    const ranges = Array.prototype.reduce.call(
+      containerEl.childNodes[0].textContent,
+      (ranges, _char, index) => {
+        const range = document.createRange();
+        range.setStart(containerEl.childNodes[0], index);
+        range.setEnd(containerEl.childNodes[0], index);
+
+        ranges.push(range);
+        return ranges;
+      },
+      []
+    );
+
+    function getNearest(x, y) {
+      let min = Infinity;
+      return ranges.reduce((nearest, range) => {
+        const rect = range.getBoundingClientRect();
+        const distance = (rect.x - x) ** 2 + (rect.y - y) ** 2;
+        if (distance < min) {
+          nearest = range;
+          min = distance;
+        }
+        return nearest;
+      }, null);
+    }
+
+    document.addEventListener("selectstart", (e) => e.preventDefault());
+  </script>
+</html>
